@@ -1,69 +1,87 @@
-# Emergency Simple Discord Bot for Railway
-# Copy this ENTIRE file as main.py in Railway
+# main.py
+# This code sets up a Discord bot and a Flask web server for uptime monitoring.
 
 import os
-import asyncio
+import threading
+import discord
+from discord.ext import commands
+from flask import Flask, request
 
-try:
-    import discord
-except ImportError:
-    print("Installing discord.py...")
-    os.system("pip install discord.py")
-    import discord
+# ====================
+# Web Server for Uptime Monitoring
+# ====================
 
-try:
-    from flask import Flask
-except ImportError:
-    print("Installing flask...")
-    os.system("pip install flask")
-    from flask import Flask
-
-# Configuration
-TOKEN = os.getenv("DISCORD_TOKEN")
-print(f"Token found: {'Yes' if TOKEN else 'No'}")
-
-# Create simple bot
-class SimpleBot(discord.Client):
-    def __init__(self):
-        intents = discord.Intents.default()
-        intents.message_content = True
-        super().__init__(intents=intents)
-
-    async def on_ready(self):
-        print(f'SUCCESS: Bot online as {self.user}')
-        print(f'Connected to {len(self.guilds)} servers')
-
-bot = SimpleBot()
-
-# Simple web server for Railway
 app = Flask(__name__)
 
 @app.route('/')
-def health():
-    status = "Online" if bot.is_ready() else "Starting"
-    return f"Discord Bot Status: {status}"
+def home():
+    # This is a simple web page that lets you know the bot is online.
+    return "The bot is awake!"
 
-# Start web server in background
-import threading
-def start_web():
-    port = int(os.environ.get("PORT", 5000))
-    print(f"Starting web server on port {port}")
-    app.run(host='0.0.0.0', port=port, debug=False)
+def run_server():
+    # Run the Flask server.
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 8080)))
 
-web_thread = threading.Thread(target=start_web, daemon=True)
-web_thread.start()
+# ====================
+# Discord Bot Setup
+# ====================
 
-# Start bot
+# Get the bot token from the environment variables.
+# This keeps your token safe and secure.
+TOKEN = os.environ.get("DISCORD_BOT_SECRET")
+
+# Define the bot's intents.
+# Intents tell Discord what events your bot needs to listen for.
+intents = discord.Intents.default()
+intents.message_content = True  # Required to read message content.
+
+# Initialize the bot with a command prefix and intents.
+# The command prefix is what a user types to tell the bot to listen (e.g., !hello).
+bot = commands.Bot(command_prefix='!', intents=intents)
+
+@bot.event
+async def on_ready():
+    """
+    This event runs when the bot successfully connects to Discord.
+    """
+    print(f'Logged in as {bot.user.name}')
+    print(f'Bot ID: {bot.user.id}')
+    print('Bot is ready and online!')
+    # You can add a status message here if you like.
+    # await bot.change_presence(activity=discord.Game(name="Hello World!"))
+
+@bot.command()
+async def hello(ctx):
+    """
+    A simple command that responds with 'Hello!'.
+    """
+    await ctx.send(f'Hello {ctx.author.name}!')
+
+@bot.command()
+async def ping(ctx):
+    """
+    Responds with the bot's latency (ping).
+    """
+    await ctx.send(f'Pong! {round(bot.latency * 1000)}ms')
+
+# ====================
+# Main Execution
+# ====================
+
 if __name__ == "__main__":
-    if not TOKEN:
-        print("ERROR: DISCORD_TOKEN not found!")
-        print("Add DISCORD_TOKEN in Railway environment variables")
-        exit(1)
-    
-    print("Starting Discord bot...")
+    # Start the web server in a separate thread.
+    # This allows the bot and the web server to run at the same time.
+    server_thread = threading.Thread(target=run_server)
+    server_thread.daemon = True # This ensures the thread closes when the main program exits.
+    server_thread.start()
+
+    # Start the Discord bot.
     try:
-        bot.run(TOKEN)
-    except Exception as e:
-        print(f"Bot failed to start: {e}")
-        import time
-        time.sleep(30)  # Keep container alive for debugging
+        if TOKEN:
+            bot.run(TOKEN)
+        else:
+            print("ERROR: Discord bot token not found in environment variables.")
+    except discord.errors.LoginFailure as e:
+        print(f"Error logging in: {e}")
+        print("Please check your bot token.")
+
