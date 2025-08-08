@@ -27,8 +27,8 @@ def run_server():
 # ====================
 
 # Get the bot token from the environment variables.
-# Note: Hard-coding your token like this is not recommended for security.
-TOKEN = "MTQwMzEzNTUxMTgxNTY1MTM4OA.GtGhf_.V73KmWYTisS91e-HsiKHy0J02nvlr7o6g06AU"
+# This keeps your token safe and secure.
+TOKEN = os.environ.get("DISCORD_BOT_SECRET")
 
 # Define the bot's intents.
 # Intents tell Discord what events your bot needs to listen for.
@@ -80,7 +80,7 @@ if __name__ == "__main__":
         if TOKEN:
             bot.run(TOKEN)
         else:
-            print("ERROR: Discord bot token not found.")
+            print("ERROR: Discord bot token not found in environment variables.")
     except discord.errors.LoginFailure as e:
         print(f"Error logging in: {e}")
         print("Please check your bot token.")
