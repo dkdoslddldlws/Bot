@@ -426,7 +426,7 @@ react_dashboard_html = """
             return (
                 <div style={{ padding: '1rem', backgroundColor: 'rgba(0, 255, 192, 0.05)', border: '1px solid #00ffc0', borderRadius: '8px', height: '100%', display: isBooting ? 'flex' : 'none', flexDirection: 'column' }}>
                     <h2 style={{ fontFamily: 'Orbitron', fontSize: '1.25rem', marginBottom: '0.5rem', color: '#00ffc0' }}>SYSTEM_BOOT_SEQUENCE</h2>
-                    <div ref={logRef} style={{ flexGrow: 1, overflowY: 'auto', whiteSpace: 'pre-wrap', wordWrap: 'break-word', fontSize: '0.75rem' }}>
+                    <div ref={logRef} style={{ flexGrow: 1, overflowY: 'auto', whiteSpace: 'pre-wrap', word-wrap: break-word', fontSize: '0.75rem' }}>
                         {logs.map((log, index) => <div key={index}>{log}</div>)}
                     </div>
                 </div>
@@ -631,8 +631,14 @@ react_dashboard_html = """
 app = Flask(__name__)
 command_usage = defaultdict(int)
 
+# ====================
+# FIX: Use a global flag to check if the bot is ready
+# ====================
+is_bot_ready = False
+
 @app.route('/api/load')
 async def bot_load_api():
+    # Simulate a system load percentage
     return jsonify({
         'load': random.randint(20, 80)
     })
@@ -652,6 +658,14 @@ async def bot_invite_api():
 
 @app.route('/api/status')
 async def bot_status_api():
+    # Only try to get bot-specific info if the bot is ready
+    if not is_bot_ready:
+        return jsonify({
+            'uptime_formatted': 'N/A',
+            'ping_ms': 'N/A',
+            'commands': []
+        })
+
     current_time = time.time()
     uptime_seconds = int(round(current_time - start_time))
     
@@ -661,11 +675,7 @@ async def bot_status_api():
     remaining_seconds = uptime_seconds % 60
     uptime_formatted = f'{uptime_hours}h {remaining_minutes}m {remaining_seconds}s'
 
-    try:
-        ping_ms = round(bot.latency * 1000)
-    except AttributeError:
-        # This will happen if the bot is not yet ready, preventing a crash.
-        ping_ms = 'N/A'
+    ping_ms = round(bot.latency * 1000)
 
     return jsonify({
         'uptime_formatted': uptime_formatted,
@@ -692,6 +702,8 @@ start_time = time.time()
 
 @bot.event
 async def on_ready():
+    global is_bot_ready
+    is_bot_ready = True # Set the flag to True once the bot is ready
     print(f'Logged in as {bot.user.name}')
     print(f'Bot ID: {bot.user.id}')
     print('Bot is ready and online!')
