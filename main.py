@@ -1,35 +1,69 @@
+# Emergency Simple Discord Bot for Railway
+# Copy this ENTIRE file as main.py in Railway
+
 import os
-import discord
+import asyncio
 
-# Get token
+try:
+    import discord
+except ImportError:
+    print("Installing discord.py...")
+    os.system("pip install discord.py")
+    import discord
+
+try:
+    from flask import Flask
+except ImportError:
+    print("Installing flask...")
+    os.system("pip install flask")
+    from flask import Flask
+
+# Configuration
 TOKEN = os.getenv("DISCORD_TOKEN")
+print(f"Token found: {'Yes' if TOKEN else 'No'}")
 
-# Create bot
-bot = discord.Client(intents=discord.Intents.default())
+# Create simple bot
+class SimpleBot(discord.Client):
+    def __init__(self):
+        intents = discord.Intents.default()
+        intents.message_content = True
+        super().__init__(intents=intents)
 
-@bot.event
-async def on_ready():
-    print(f'Bot connected: {bot.user}')
+    async def on_ready(self):
+        print(f'SUCCESS: Bot online as {self.user}')
+        print(f'Connected to {len(self.guilds)} servers')
 
-# Start Flask web server for Railway
-from flask import Flask
-from threading import Thread
+bot = SimpleBot()
 
+# Simple web server for Railway
 app = Flask(__name__)
 
 @app.route('/')
-def home():
-    return "Bot is running!"
+def health():
+    status = "Online" if bot.is_ready() else "Starting"
+    return f"Discord Bot Status: {status}"
 
-def run_web():
+# Start web server in background
+import threading
+def start_web():
     port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
+    print(f"Starting web server on port {port}")
+    app.run(host='0.0.0.0', port=port, debug=False)
 
-# Start web server
-Thread(target=run_web, daemon=True).start()
+web_thread = threading.Thread(target=start_web, daemon=True)
+web_thread.start()
 
-# Run bot
-if TOKEN:
-    bot.run(TOKEN)
-else:
-    print("No DISCORD_TOKEN found")
+# Start bot
+if __name__ == "__main__":
+    if not TOKEN:
+        print("ERROR: DISCORD_TOKEN not found!")
+        print("Add DISCORD_TOKEN in Railway environment variables")
+        exit(1)
+    
+    print("Starting Discord bot...")
+    try:
+        bot.run(TOKEN)
+    except Exception as e:
+        print(f"Bot failed to start: {e}")
+        import time
+        time.sleep(30)  # Keep container alive for debugging
