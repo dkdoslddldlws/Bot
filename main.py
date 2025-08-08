@@ -661,9 +661,15 @@ async def bot_status_api():
     remaining_seconds = uptime_seconds % 60
     uptime_formatted = f'{uptime_hours}h {remaining_minutes}m {remaining_seconds}s'
 
+    try:
+        ping_ms = round(bot.latency * 1000)
+    except AttributeError:
+        # This will happen if the bot is not yet ready, preventing a crash.
+        ping_ms = 'N/A'
+
     return jsonify({
         'uptime_formatted': uptime_formatted,
-        'ping_ms': round(bot.latency * 1000) if bot.is_ready() else 'N/A',
+        'ping_ms': ping_ms,
         'commands': [] # Commands list is no longer used in this version
     })
 
