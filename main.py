@@ -21,53 +21,68 @@ dashboard_html = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bot Status Dashboard</title>
+    <title>Dino Bot Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;700&display=swap');
         body {
-            font-family: 'Orbitron', sans-serif;
-            background-color: #0d1117;
-            color: #c9d1d9;
+            font-family: 'Chakra Petch', sans-serif;
+            background-color: #0c0a09; /* Deep charcoal background */
+            color: #d1d5db; /* Light gray text */
         }
         .glow {
-            text-shadow: 0 0 5px #00f, 0 0 10px #00f, 0 0 15px #00f;
-            animation: pulse-glow 1.5s infinite alternate;
+            text-shadow: 0 0 8px #a78bfa, 0 0 16px #a78bfa;
+            animation: glow 2s infinite alternate;
         }
-        @keyframes pulse-glow {
+        @keyframes glow {
             from {
-                text-shadow: 0 0 5px #00f, 0 0 10px #00f, 0 0 15px #00f;
+                text-shadow: 0 0 8px #a78bfa, 0 0 16px #a78bfa, 0 0 24px #a78bfa;
             }
             to {
-                text-shadow: 0 0 10px #00f, 0 0 20px #00f, 0 0 30px #00f;
+                text-shadow: 0 0 12px #a78bfa, 0 0 24px #a78bfa, 0 0 36px #a78bfa;
             }
         }
-        .border-glow {
-            border: 2px solid transparent;
-            border-image: linear-gradient(45deg, #00f, #8a2be2) 1;
+        .glitch-text {
+            color: #4ade80; /* Dino green */
+            position: relative;
+            animation: glitch 1.5s infinite;
+        }
+        @keyframes glitch {
+            0%   { left: 0px; top: 0px; }
+            10%  { left: -2px; top: -2px; }
+            20%  { left: 2px; top: 2px; }
+            30%  { left: -2px; top: -2px; }
+            40%  { left: 2px; top: 2px; }
+            50%  { left: -2px; top: -2px; }
+            60%  { left: 2px; top: 2px; }
+            70%  { left: -2px; top: -2px; }
+            80%  { left: 2px; top: 2px; }
+            90%  { left: -2px; top: -2px; }
+            100% { left: 0px; top: 0px; }
         }
         .bg-card {
-            background-color: #161b22;
+            background-color: #1a1a1a;
+            border: 1px solid #3f3f46;
         }
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen p-4">
-    <div class="bg-card border-glow rounded-lg shadow-2xl p-8 w-full max-w-2xl text-center">
-        <h1 class="text-4xl md:text-5xl font-bold text-white mb-4 glow">Bot Status Monitor</h1>
-        <p class="text-lg md:text-xl text-gray-400 mb-6">Connected to Discord and running smoothly.</p>
+    <div class="bg-card border-purple-500 rounded-lg shadow-2xl p-8 w-full max-w-2xl text-center">
+        <h1 class="text-4xl md:text-5xl font-bold mb-4 glitch-text">Dino Bot Status</h1>
+        <p class="text-lg md:text-xl text-gray-400 mb-6">Monitoring the server with style.</p>
         
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-            <div class="bg-gray-800 p-4 rounded-lg">
+            <div class="bg-gray-800 p-4 rounded-lg border border-green-500">
                 <h2 class="text-xl font-bold text-gray-300">Status</h2>
-                <p id="status" class="text-green-400 text-3xl font-extrabold mt-2">ONLINE</p>
+                <p id="status" class="text-green-400 text-3xl font-extrabold mt-2 glow">ONLINE</p>
             </div>
-            <div class="bg-gray-800 p-4 rounded-lg">
+            <div class="bg-gray-800 p-4 rounded-lg border border-yellow-500">
                 <h2 class="text-xl font-bold text-gray-300">Ping</h2>
-                <p id="ping" class="text-yellow-300 text-3xl font-extrabold mt-2">Fetching...</p>
+                <p id="ping" class="text-yellow-300 text-3xl font-extrabold mt-2 glow">Fetching...</p>
             </div>
-            <div class="bg-gray-800 p-4 rounded-lg">
+            <div class="bg-gray-800 p-4 rounded-lg border border-purple-500">
                 <h2 class="text-xl font-bold text-gray-300">Uptime</h2>
-                <p id="uptime" class="text-blue-400 text-3xl font-extrabold mt-2">Fetching...</p>
+                <p id="uptime" class="text-purple-400 text-3xl font-extrabold mt-2 glow">Fetching...</p>
             </div>
         </div>
 
@@ -77,23 +92,22 @@ dashboard_html = """
     </div>
 
     <script>
-        // Placeholder for future dynamic data
         document.addEventListener('DOMContentLoaded', () => {
             function updateDashboard() {
                 const now = new Date();
                 document.getElementById('last-checked').textContent = now.toLocaleTimeString();
 
-                // Example of how to make it dynamic
-                // This would be replaced by a real API call later
                 const uptimeDisplay = document.getElementById('uptime');
                 const lastUptime = uptimeDisplay.textContent;
-                if (lastUptime === 'Fetching...' || lastUptime === '0h 0m 0s') {
-                     uptimeDisplay.textContent = '0h 0m 0s';
+                
+                if (lastUptime.startsWith('Fetching')) {
+                    uptimeDisplay.textContent = '0h 0m 0s';
                 } else {
-                    let parts = lastUptime.match(/(\d+)h (\d+)m (\d+)s/);
+                    const parts = lastUptime.match(/(\d+)h (\d+)m (\d+)s/);
                     let hours = parseInt(parts[1]);
                     let minutes = parseInt(parts[2]);
                     let seconds = parseInt(parts[3]);
+                    
                     seconds++;
                     if (seconds >= 60) {
                         seconds = 0;
@@ -106,11 +120,7 @@ dashboard_html = """
                     uptimeDisplay.textContent = `${hours}h ${minutes}m ${seconds}s`;
                 }
             }
-
-            // Update the dashboard every second
             setInterval(updateDashboard, 1000);
-            
-            // Initial call to set the dashboard content
             updateDashboard();
         });
     </script>
