@@ -1,70 +1,35 @@
-#!/usr/bin/env python3
-"""
-ULTRA-SIMPLE Railway Discord Bot - Copy this as main.py
-This version eliminates all permission and complexity issues
-"""
-
 import os
 import discord
-from discord.ext import commands
-from discord import app_commands
 
-# Simple setup
+# Get token
 TOKEN = os.getenv("DISCORD_TOKEN")
-GEMINI_KEY = os.getenv("GEMINI_API_KEY")
 
-# Basic bot with minimal permissions
-intents = discord.Intents.default()
-intents.message_content = True
-bot = commands.Bot(command_prefix='!', intents=intents)
+# Create bot
+bot = discord.Client(intents=discord.Intents.default())
 
 @bot.event
 async def on_ready():
-    print(f'✅ Bot online: {bot.user}')
-    try:
-        synced = await bot.tree.sync()
-        print(f'✅ Synced {len(synced)} commands')
-    except Exception as e:
-        print(f'❌ Sync failed: {e}')
+    print(f'Bot connected: {bot.user}')
 
-@bot.tree.command(name="ping", description="Test if bot is working")
-async def ping(interaction: discord.Interaction):
-    await interaction.response.send_message("🏓 Pong! Bot is working!")
+# Start Flask web server for Railway
+from flask import Flask
+from threading import Thread
 
-@bot.tree.command(name="hello", description="Say hello")
-async def hello(interaction: discord.Interaction):
-    await interaction.response.send_message(f"👋 Hello {interaction.user.mention}!")
+app = Flask(__name__)
 
-@bot.tree.command(name="chat", description="Basic AI chat")
-async def chat(interaction: discord.Interaction, message: str):
-    await interaction.response.send_message(f"🤖 You said: {message}\n\n*AI features coming soon!*")
+@app.route('/')
+def home():
+    return "Bot is running!"
 
-# Simple Flask for Railway
-try:
-    from flask import Flask
-    from threading import Thread
-    
-    app = Flask(__name__)
-    
-    @app.route('/')
-    def home():
-        return "🤖 Discord Bot Online!"
-    
-    def run_flask():
-        port = int(os.environ.get("PORT", 5000))
-        app.run(host='0.0.0.0', port=port, debug=False)
-    
-    # Start Flask in background
-    Thread(target=run_flask, daemon=True).start()
-    
-except ImportError:
-    print("Flask not available, skipping web server")
+def run_web():
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
+
+# Start web server
+Thread(target=run_web, daemon=True).start()
 
 # Run bot
-if __name__ == "__main__":
-    if TOKEN:
-        print("🚀 Starting bot...")
-        bot.run(TOKEN)
-    else:
-        print("❌ DISCORD_TOKEN missing!")
-        print("Add DISCORD_TOKEN to Railway environment variables")
+if TOKEN:
+    bot.run(TOKEN)
+else:
+    print("No DISCORD_TOKEN found")
