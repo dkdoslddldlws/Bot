@@ -13,121 +13,126 @@ import time
 # HTML for the Dashboard
 # ====================
 
-# This is the entire HTML code for the futuristic dashboard.
-# We're embedding it directly in the Python file for simplicity.
+# This is the entire HTML code for the Dyno-inspired dashboard.
 dashboard_html = """
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dino Bot Dashboard</title>
+    <title>Dyno Bot Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         body {
-            font-family: 'Chakra Petch', sans-serif;
-            background-color: #0c0a09; /* Deep charcoal background */
-            color: #d1d5db; /* Light gray text */
+            font-family: 'Inter', sans-serif;
+            background-color: #0d0f11;
         }
-        .glow {
-            text-shadow: 0 0 8px #a78bfa, 0 0 16px #a78bfa;
-            animation: glow 2s infinite alternate;
+        .sidebar {
+            background-color: #1a1b1d;
+            border-right: 1px solid #2d2e30;
         }
-        @keyframes glow {
-            from {
-                text-shadow: 0 0 8px #a78bfa, 0 0 16px #a78bfa, 0 0 24px #a78bfa;
-            }
-            to {
-                text-shadow: 0 0 12px #a78bfa, 0 0 24px #a78bfa, 0 0 36px #a78bfa;
-            }
+        .main-content {
+            background-color: #121315;
         }
-        .glitch-text {
-            color: #4ade80; /* Dino green */
-            position: relative;
-            animation: glitch 1.5s infinite;
+        .active-tab {
+            background-color: #c9405d;
+            color: white;
+            border-radius: 6px;
         }
-        @keyframes glitch {
-            0%   { left: 0px; top: 0px; }
-            10%  { left: -2px; top: -2px; }
-            20%  { left: 2px; top: 2px; }
-            30%  { left: -2px; top: -2px; }
-            40%  { left: 2px; top: 2px; }
-            50%  { left: -2px; top: -2px; }
-            60%  { left: 2px; top: 2px; }
-            70%  { left: -2px; top: -2px; }
-            80%  { left: 2px; top: 2px; }
-            90%  { left: -2px; top: -2px; }
-            100% { left: 0px; top: 0px; }
-        }
-        .bg-card {
-            background-color: #1a1a1a;
-            border: 1px solid #3f3f46;
+        .card {
+            background-color: #1a1b1d;
         }
     </style>
 </head>
-<body class="flex items-center justify-center min-h-screen p-4">
-    <div class="bg-card border-purple-500 rounded-lg shadow-2xl p-8 w-full max-w-2xl text-center">
-        <h1 class="text-4xl md:text-5xl font-bold mb-4 glitch-text">Dino Bot Status</h1>
-        <p class="text-lg md:text-xl text-gray-400 mb-6">Monitoring the server with style.</p>
-        
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-            <div class="bg-gray-800 p-4 rounded-lg border border-green-500">
-                <h2 class="text-xl font-bold text-gray-300">Status</h2>
-                <p id="status" class="text-green-400 text-3xl font-extrabold mt-2 glow">ONLINE</p>
-            </div>
-            <div class="bg-gray-800 p-4 rounded-lg border border-yellow-500">
-                <h2 class="text-xl font-bold text-gray-300">Ping</h2>
-                <p id="ping" class="text-yellow-300 text-3xl font-extrabold mt-2 glow">Fetching...</p>
-            </div>
-            <div class="bg-gray-800 p-4 rounded-lg border border-purple-500">
-                <h2 class="text-xl font-bold text-gray-300">Uptime</h2>
-                <p id="uptime" class="text-purple-400 text-3xl font-extrabold mt-2 glow">Fetching...</p>
-            </div>
+<body class="flex min-h-screen text-gray-200">
+
+    <!-- Sidebar -->
+    <aside class="sidebar w-64 p-4 flex flex-col hidden md:flex">
+        <div class="flex items-center space-x-2 mb-8">
+            <svg class="h-8 w-8 text-white" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-4.17 3.06-7.53 7-7.93v15.86zM12 4.07c3.95.49 7 3.85 7 7.93s-3.05 7.44-7 7.93V4.07z"/>
+            </svg>
+            <span class="text-xl font-bold">DYNABOT</span>
+        </div>
+        <nav class="space-y-2">
+            <a href="#" class="flex items-center p-3 rounded-lg hover:bg-gray-700">
+                <svg class="h-5 w-5 mr-3" fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                Dashboard
+            </a>
+            <a href="#" class="flex items-center p-3 rounded-lg bg-gray-700">
+                <svg class="h-5 w-5 mr-3" fill="currentColor" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 14v-2h8v2H6zm10-3H6V9h10v2zm0-4H6V5h10v2z"/></svg>
+                Commands
+            </a>
+            <a href="#" class="flex items-center p-3 rounded-lg hover:bg-gray-700">
+                <svg class="h-5 w-5 mr-3" fill="currentColor" viewBox="0 0 24 24"><path d="M10 2a8 8 0 018 8c0 2.21-.89 4.21-2.34 5.66L20.59 19l-1.42 1.41-3.9-3.9A8 8 0 1110 2zm0 14a6 6 0 100-12 6 6 0 000 12z"/></svg>
+                Logs
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content flex-grow p-6">
+        <h1 class="text-3xl font-bold mb-6">Commands</h1>
+
+        <!-- Command Tabs -->
+        <div class="flex flex-wrap gap-2 mb-6">
+            <span class="p-2 text-sm font-semibold cursor-pointer active-tab">Manager</span>
+            <span class="p-2 text-sm font-semibold text-gray-400 rounded-lg hover:bg-gray-700 cursor-pointer">Misc</span>
+            <span class="p-2 text-sm font-semibold text-gray-400 rounded-lg hover:bg-gray-700 cursor-pointer">Info</span>
+            <span class="p-2 text-sm font-semibold text-gray-400 rounded-lg hover:bg-gray-700 cursor-pointer">Fun</span>
+            <span class="p-2 text-sm font-semibold text-gray-400 rounded-lg hover:bg-gray-700 cursor-pointer">Moderator</span>
         </div>
 
-        <div class="border-t border-gray-700 pt-6 text-gray-500">
-            <p>Last checked: <span id="last-checked">...</span></p>
+        <!-- Command Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            <!-- Example Card -->
+            <div class="card p-4 rounded-lg flex flex-col justify-between">
+                <div>
+                    <h3 class="text-lg font-semibold flex items-center">
+                        Addmod
+                        <span class="ml-2 text-sm text-green-400">(Enabled)</span>
+                    </h3>
+                    <p class="text-sm text-gray-400 mt-1">Add a moderator role.</p>
+                </div>
+                <div class="mt-4 flex justify-between items-center">
+                    <button class="text-sm text-gray-400 hover:text-gray-200">Settings</button>
+                    <button class="text-sm text-gray-400 hover:text-gray-200">Help</button>
+                </div>
+            </div>
+            <!-- More example cards would go here -->
+             <div class="card p-4 rounded-lg flex flex-col justify-between">
+                <div>
+                    <h3 class="text-lg font-semibold flex items-center">
+                        Addrole
+                        <span class="ml-2 text-sm text-green-400">(Enabled)</span>
+                    </h3>
+                    <p class="text-sm text-gray-400 mt-1">Add a new role with optional color and hoist.</p>
+                </div>
+                <div class="mt-4 flex justify-between items-center">
+                    <button class="text-sm text-gray-400 hover:text-gray-200">Settings</button>
+                    <button class="text-sm text-gray-400 hover:text-gray-200">Help</button>
+                </div>
+            </div>
+             <div class="card p-4 rounded-lg flex flex-col justify-between">
+                <div>
+                    <h3 class="text-lg font-semibold flex items-center">
+                        Delmod
+                        <span class="ml-2 text-sm text-red-400">(Disabled)</span>
+                    </h3>
+                    <p class="text-sm text-gray-400 mt-1">Remove a moderator role.</p>
+                </div>
+                <div class="mt-4 flex justify-between items-center">
+                    <button class="text-sm text-gray-400 hover:text-gray-200">Settings</button>
+                    <button class="text-sm text-gray-400 hover:text-gray-200">Help</button>
+                </div>
+            </div>
         </div>
-    </div>
+    </main>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            function updateDashboard() {
-                const now = new Date();
-                document.getElementById('last-checked').textContent = now.toLocaleTimeString();
-
-                const uptimeDisplay = document.getElementById('uptime');
-                const lastUptime = uptimeDisplay.textContent;
-                
-                if (lastUptime.startsWith('Fetching')) {
-                    uptimeDisplay.textContent = '0h 0m 0s';
-                } else {
-                    const parts = lastUptime.match(/(\d+)h (\d+)m (\d+)s/);
-                    let hours = parseInt(parts[1]);
-                    let minutes = parseInt(parts[2]);
-                    let seconds = parseInt(parts[3]);
-                    
-                    seconds++;
-                    if (seconds >= 60) {
-                        seconds = 0;
-                        minutes++;
-                    }
-                    if (minutes >= 60) {
-                        minutes = 0;
-                        hours++;
-                    }
-                    uptimeDisplay.textContent = `${hours}h ${minutes}m ${seconds}s`;
-                }
-            }
-            setInterval(updateDashboard, 1000);
-            updateDashboard();
-        });
-    </script>
 </body>
 </html>
 """
-
 
 # ====================
 # Web Server for Uptime Monitoring
